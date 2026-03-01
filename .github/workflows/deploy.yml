@@ -11,7 +11,6 @@ jobs:
       actions: write
     env:
       DOCKER_BUILDKIT: 1
-      GH_TOKEN: ${{ github.token }}
 
     steps:
       - name: Checkout
@@ -33,10 +32,25 @@ jobs:
             DE_IMAGE="${{ github.event.client_payload.de_image }}"
           fi
 
-          # Persist for future runs
-          gh variable set ASSISTANT_IMAGE --body "$ASSISTANT_IMAGE" --repo raphickie/zusrc-infra
-          gh variable set DE_IMAGE --body "$DE_IMAGE" --repo raphickie/zusrc-infra
-          gh variable set DOLKA_IMAGE --body "$DOLKA_IMAGE" --repo raphickie/zusrc-infra
+          # Persist for future runs via GitHub API
+          set_var() {
+            local name=$1 value=$2
+            status=$(curl -s -o /dev/null -w "%{http_code}" -X PATCH \
+              -H "Authorization: Bearer ${{ github.token }}" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/raphickie/zusrc-infra/actions/variables/$name" \
+              -d "{\"name\":\"$name\",\"value\":\"$value\"}")
+            if [ "$status" = "404" ]; then
+              curl -s -X POST \
+                -H "Authorization: Bearer ${{ github.token }}" \
+                -H "Accept: application/vnd.github+json" \
+                "https://api.github.com/repos/raphickie/zusrc-infra/actions/variables" \
+                -d "{\"name\":\"$name\",\"value\":\"$value\"}"
+            fi
+          }
+          set_var ASSISTANT_IMAGE "$ASSISTANT_IMAGE"
+          set_var DE_IMAGE "$DE_IMAGE"
+          set_var DOLKA_IMAGE "$DOLKA_IMAGE"
 
           # Export for current run
           echo "ASSISTANT_IMAGE=$ASSISTANT_IMAGE" >> $GITHUB_ENV
