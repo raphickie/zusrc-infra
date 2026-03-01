@@ -1,0 +1,108 @@
+services:
+  traefik:
+    image: traefik:v2.10
+    container_name: traefik
+    command:
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.letsencrypt.acme.email=raphickie@gmail.com"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./traefik/letsencrypt:/letsencrypt
+      - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.zusrc.ru`)"
+      - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.http.routers.traefik.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.traefik.entrypoints=websecure"
+
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:1.109.1
+    container_name: n8n
+    ports:
+      - "5678:5678"
+    volumes:
+      - n8n_data:/home/node/.n8n
+    environment:
+      N8N_SECURE_COOKIE: false
+      HTTP_PROXY: "http://wWcGsdpW:NZjjc3e7@154.195.165.235:64332"
+      HTTPS_PROXY: "http://wWcGsdpW:NZjjc3e7@154.195.165.235:64332"
+      N8N_EDITOR_BASE_URL: "https://n8n.zusrc.ru"
+      WEBHOOK_URL: https://n8n.zusrc.ru
+      WEBHOOK_TUNNEL_URL: https://n8n.zusrc.ru
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.n8n.rule=Host(`n8n.zusrc.ru`)"
+      - "traefik.http.routers.n8n.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.n8n.entrypoints=websecure"
+      - "traefik.http.services.n8n.loadbalancer.server.port=5678"
+    depends_on:
+      - traefik
+
+  assistant:
+    container_name: assistant-web
+    image: ${ASSISTANT_IMAGE}
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      DbConfiguration__MysqlDatabase__ConnectionString: ${CONNECTION_STRING}
+      BotConfiguration__BotToken: ${BOT_TOKEN}
+      SberGptSettings__AuthData: ${SBER_GPT_AUTH_DATA}
+      BotChatSettings__BotUsername: "tvoy_assistent_bot"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.assistant.rule=Host(`assistant.zusrc.ru`)"
+      - "traefik.http.routers.assistant.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.assistant.entrypoints=websecure"
+      - "traefik.http.services.assistant.loadbalancer.server.port=8080"
+    depends_on:
+      - traefik
+
+  disco-elysium-bot:
+    container_name: disco-elysium
+    image: ${DE_IMAGE}
+    restart: always
+    environment:
+      BotConfiguration__BotToken: ${DE_BOT_TOKEN}
+      BotConfiguration__N8nHookAddress: ${DE_BOT_HOOK}
+
+  dolka:
+    container_name: dolka
+    image: ${DOLKA_IMAGE}
+    restart: always
+    environment:
+      ConnectionStrings__Default: "Server=database;Port=3306;Database=dolka;User=root;Password=${MYSQL_CONTAINER_ROOT_PASSWORD};"
+      Telegram__BotToken: ${DOLKA_BOT_TOKEN}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dolka.rule=Host(`dolka.zusrc.ru`)"
+      - "traefik.http.routers.dolka.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.dolka.entrypoints=websecure"
+      - "traefik.http.services.dolka.loadbalancer.server.port=8080"
+    depends_on:
+      - traefik
+      - database
+
+  database:
+    container_name: mysql
+    image: ${MYSQL_IMAGE}
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_CONTAINER_ROOT_PASSWORD}
+    volumes:
+      - /usr/local/mysql:/var/lib/mysql
+    ports:
+      - "3306:3306"
+
+volumes:
+  n8n_data:
+    driver: local

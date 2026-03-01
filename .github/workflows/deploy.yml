@@ -1,0 +1,107 @@
+name: Deploy
+
+on:
+  repository_dispatch:
+    types: [assistant-deploy, dolka-deploy]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_BUILDKIT: 1
+      GH_TOKEN: ${{ secrets.INFRA_DISPATCH_TOKEN }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Resolve image tags
+        id: images
+        run: |
+          # Start from stored values
+          ASSISTANT_IMAGE="${{ vars.ASSISTANT_IMAGE }}"
+          DE_IMAGE="${{ vars.DE_IMAGE }}"
+          DOLKA_IMAGE="${{ vars.DOLKA_IMAGE }}"
+
+          # Override with dispatch payload
+          if [ "${{ github.event.action }}" == "dolka-deploy" ]; then
+            DOLKA_IMAGE="${{ github.event.client_payload.image }}"
+          elif [ "${{ github.event.action }}" == "assistant-deploy" ]; then
+            ASSISTANT_IMAGE="${{ github.event.client_payload.assistant_image }}"
+            DE_IMAGE="${{ github.event.client_payload.de_image }}"
+          fi
+
+          # Persist for future runs
+          gh variable set ASSISTANT_IMAGE --body "$ASSISTANT_IMAGE" --repo raphickie/zusrc-infra
+          gh variable set DE_IMAGE --body "$DE_IMAGE" --repo raphickie/zusrc-infra
+          gh variable set DOLKA_IMAGE --body "$DOLKA_IMAGE" --repo raphickie/zusrc-infra
+
+          # Export for current run
+          echo "ASSISTANT_IMAGE=$ASSISTANT_IMAGE" >> $GITHUB_ENV
+          echo "DE_IMAGE=$DE_IMAGE" >> $GITHUB_ENV
+          echo "DOLKA_IMAGE=$DOLKA_IMAGE" >> $GITHUB_ENV
+
+      - name: Save service account key
+        run: echo '${{ secrets.YANDEX_SA_KEY_JSON }}' > key.json
+
+      - name: Install & configure yc CLI
+        run: |
+          curl https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash -s -- -a
+          export PATH="$PATH:/home/runner/yandex-cloud/bin/"
+          echo "PATH=$PATH:/home/runner/yandex-cloud/bin/" >> $GITHUB_ENV
+          yc config profile create deploy-profile
+          yc config set service-account-key key.json
+          yc config set cloud-id ${{ secrets.YANDEX_CLOUD_ID }}
+          yc config set folder-id ${{ secrets.YANDEX_FOLDER_ID }}
+
+      - name: Authenticate in Yandex Container Registry
+        run: echo '${{ secrets.YANDEX_CONTAINER_REG_KEY }}' | docker login -u oauth --password-stdin cr.yandex
+
+      - name: Deploy
+        env:
+          MYSQL_IMAGE: ${{ secrets.YANDEX_CONTAINER_REG_ID }}/mysql:8.0
+          CONNECTION_STRING: ${{ secrets.CONNECTION_STRING }}
+          MYSQL_CONTAINER_ROOT_PASSWORD: ${{ secrets.MYSQL_CONTAINER_ROOT_PASSWORD }}
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          SBER_GPT_AUTH_DATA: ${{ secrets.SBER_GPT_AUTH_DATA }}
+          DE_BOT_TOKEN: ${{ secrets.DE_BOT_TOKEN }}
+          DE_BOT_HOOK: ${{ secrets.DE_BOT_HOOK }}
+          DOLKA_BOT_TOKEN: ${{ secrets.DOLKA_BOT_TOKEN }}
+        run: |
+          envsubst < ./yandex-deploy/docker-compose.yaml > ./yandex-deploy/docker-compose_patched.yaml
+          yc compute instance update-container \
+            --name ${{ secrets.YANDEX_VM_NAME }} \
+            --docker-compose-file ./yandex-deploy/docker-compose_patched.yaml
+
+      - name: Deploy restarter - create function
+        run: |
+          if yc serverless function get --name function-restart-assistent > /dev/null 2>&1; then
+            echo "Function found"
+          else
+            echo "Function not found. Creating new function..."
+            yc serverless function create --name function-restart-assistent
+            yc serverless function version create \
+              --function-name function-restart-assistent \
+              --memory=128m \
+              --execution-timeout=3s \
+              --runtime=nodejs18 \
+              --entrypoint=index.handler \
+              --service-account-id=aje7b389fe6t9mn2qa86 \
+              --environment FOLDER_ID=${{ secrets.YANDEX_FOLDER_ID }},INSTANCE_ID=${{ secrets.YANDEX_VM_INSTANCE_ID }} \
+              --secret name=sa-vm-trigger-oauth-token,version-id=e6qt1e67sgcimcc8sbdf,key=key_token,environment-variable=OAUTHTOKEN \
+              --source-path=./yandex-deploy/restarter.zip \
+              --no-logging
+          fi
+
+      - name: Deploy restarter - create timer
+        run: |
+          if yc serverless trigger get --name timer > /dev/null 2>&1; then
+            echo "Trigger found, wont update"
+          else
+            echo "Trigger not found. Creating new trigger..."
+            yc serverless trigger create timer \
+              --name timer \
+              --cron-expression '*/5 * ? * * *' \
+              --invoke-function-name function-restart-assistent \
+              --invoke-function-service-account-id aje7b389fe6t9mn2qa86
+          fi
