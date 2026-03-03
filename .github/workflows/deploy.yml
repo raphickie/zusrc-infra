@@ -66,6 +66,7 @@ jobs:
           export PATH="$PATH:/home/runner/yandex-cloud/bin/"
           echo "PATH=$PATH:/home/runner/yandex-cloud/bin/" >> $GITHUB_ENV
           yc config profile create deploy-profile
+          echo 'setting service-account-key'
           yc config set service-account-key key.json
           yc config set cloud-id b1gghedlq9oamjqd9i5n
           yc config set folder-id b1gk0njolictbpgn6sao
