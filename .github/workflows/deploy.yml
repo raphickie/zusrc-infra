@@ -67,8 +67,8 @@ jobs:
           echo "PATH=$PATH:/home/runner/yandex-cloud/bin/" >> $GITHUB_ENV
           yc config profile create deploy-profile
           yc config set service-account-key key.json
-          yc config set cloud-id ${{ secrets.YANDEX_CLOUD_ID }}
-          yc config set folder-id ${{ secrets.YANDEX_FOLDER_ID }}
+          yc config set cloud-id b1gghedlq9oamjqd9i5n
+          yc config set folder-id b1gk0njolictbpgn6sao
 
       - name: Authenticate in Yandex Container Registry
         run: echo '${{ secrets.YANDEX_CONTAINER_REG_KEY }}' | docker login -u oauth --password-stdin cr.yandex
