@@ -39,13 +39,13 @@ jobs:
           set_var() {
             local name=$1 value=$2
             status=$(curl -s -o /dev/null -w "%{http_code}" -X PATCH \
-              -H "Authorization: Bearer ${{ github.token }}" \
+              -H "Authorization: Bearer ${{ secrets.INFRA_DISPATCH_TOKEN }}" \
               -H "Accept: application/vnd.github+json" \
               "https://api.github.com/repos/raphickie/zusrc-infra/actions/variables/$name" \
               -d "{\"name\":\"$name\",\"value\":\"$value\"}")
             if [ "$status" = "404" ]; then
               curl -s -X POST \
-                -H "Authorization: Bearer ${{ github.token }}" \
+                -H "Authorization: Bearer ${{ secrets.INFRA_DISPATCH_TOKEN }}" \
                 -H "Accept: application/vnd.github+json" \
                 "https://api.github.com/repos/raphickie/zusrc-infra/actions/variables" \
                 -d "{\"name\":\"$name\",\"value\":\"$value\"}"
