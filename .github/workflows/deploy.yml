@@ -1,6 +1,9 @@
 name: Deploy
 
 on:
+  push:
+    branches:
+      - master
   repository_dispatch:
     types: [assistant-deploy, dolka-deploy]
 
@@ -85,9 +88,9 @@ jobs:
           DOLKA_BOT_TOKEN: ${{ secrets.DOLKA_BOT_TOKEN }}
         run: |
           envsubst < ./yandex-deploy/docker-compose.yaml > ./yandex-deploy/docker-compose_patched.yaml
-          yc compute instance update-container \
-            --name ${{ secrets.YANDEX_VM_NAME }} \
-            --docker-compose-file ./yandex-deploy/docker-compose_patched.yaml
+        # yc compute instance update-container \
+        #   --name ${{ secrets.YANDEX_VM_NAME }} \
+        #   --docker-compose-file ./yandex-deploy/docker-compose_patched.yaml
 
       - name: Deploy restarter - create function
         run: |
