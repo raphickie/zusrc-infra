@@ -70,9 +70,8 @@ jobs:
           yc config set service-account-key key.json
           yc config set cloud-id b1gghedlq9oamjqd9i5n
           yc config set folder-id b1gk0njolictbpgn6sao
-
-      - name: Authenticate in Yandex Container Registry
-        run: echo '${{ secrets.YANDEX_CONTAINER_REG_KEY }}' | docker login -u oauth --password-stdin cr.yandex
+      # - name: Authenticate in Yandex Container Registry
+      #   run: echo '${{ secrets.YANDEX_CONTAINER_REG_KEY }}' | docker login -u oauth --password-stdin cr.yandex
 
       - name: Deploy
         env:
