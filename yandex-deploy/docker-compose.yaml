@@ -55,8 +55,7 @@ services:
       - "8080:8080"
     environment:
       DbConfiguration__MysqlDatabase__ConnectionString: ${CONNECTION_STRING}
-      BotConfiguration__BotToken: ${BOT_TOKEN}
-      SberGptSettings__AuthData: ${SBER_GPT_AUTH_DATA}
+      BotConfiguration__BotToken: ${ASSISTANT_BOT_TOKEN}
       BotChatSettings__BotUsername: "tvoy_assistent_bot"
     labels:
       - "traefik.enable=true"
