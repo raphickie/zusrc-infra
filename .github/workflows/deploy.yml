@@ -86,7 +86,7 @@ jobs:
 
       - name: Deploy
         env:
-          MYSQL_IMAGE: ${{ secrets.YANDEX_CONTAINER_REG_ID }}/mysql:8.0
+          MYSQL_IMAGE: ${{ secrets.MYSQL_IMAGE }}
           CONNECTION_STRING: ${{ secrets.CONNECTION_STRING }}
           MYSQL_CONTAINER_ROOT_PASSWORD: ${{ secrets.MYSQL_CONTAINER_ROOT_PASSWORD }}
           ASSISTANT_BOT_TOKEN: ${{ secrets.ASSISTANT_BOT_TOKEN }}
