@@ -96,9 +96,9 @@ jobs:
         run: |
           envsubst < ./yandex-deploy/docker-compose.yaml > ./yandex-deploy/docker-compose_patched.yaml
           cat ./yandex-deploy/docker-compose_patched.yaml
-        # yc compute instance update-container \
-        #   --name ${{ secrets.YANDEX_VM_NAME }} \
-        #   --docker-compose-file ./yandex-deploy/docker-compose_patched.yaml
+          yc compute instance update-container \
+            --name ${{ secrets.YANDEX_VM_NAME }} \
+            --docker-compose-file ./yandex-deploy/docker-compose_patched.yaml
 
       - name: Deploy restarter - create function
         run: |
