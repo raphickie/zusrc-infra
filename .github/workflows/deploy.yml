@@ -89,8 +89,7 @@ jobs:
           MYSQL_IMAGE: ${{ secrets.YANDEX_CONTAINER_REG_ID }}/mysql:8.0
           CONNECTION_STRING: ${{ secrets.CONNECTION_STRING }}
           MYSQL_CONTAINER_ROOT_PASSWORD: ${{ secrets.MYSQL_CONTAINER_ROOT_PASSWORD }}
-          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
-          SBER_GPT_AUTH_DATA: ${{ secrets.SBER_GPT_AUTH_DATA }}
+          ASSISTANT_BOT_TOKEN: ${{ secrets.ASSISTANT_BOT_TOKEN }}
           DE_BOT_TOKEN: ${{ secrets.DE_BOT_TOKEN }}
           DE_BOT_HOOK: ${{ secrets.DE_BOT_HOOK }}
           DOLKA_BOT_TOKEN: ${{ secrets.DOLKA_BOT_TOKEN }}
