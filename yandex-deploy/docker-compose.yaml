@@ -5,7 +5,7 @@ services:
     entrypoint:
       - /bin/sh
       - -c
-      - "touch /letsencrypt/acme.json && chmod 600 /letsencrypt/acme.json && exec /entrypoint.sh \"$$@\""
+      - "mkdir -p /letsencrypt && touch /letsencrypt/acme.json && chmod 600 /letsencrypt/acme.json && exec /entrypoint.sh \"$$@\""
       - --
     command:
       - "--api.dashboard=true"
