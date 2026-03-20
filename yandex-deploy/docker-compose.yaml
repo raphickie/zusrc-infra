@@ -2,11 +2,6 @@ services:
   traefik:
     image: traefik:v2.10
     container_name: traefik
-    entrypoint:
-      - /bin/sh
-      - -c
-      - "mkdir -p /letsencrypt && touch /letsencrypt/acme.json && chmod 600 /letsencrypt/acme.json && exec /entrypoint.sh \"$$@\""
-      - --
     command:
       - "--api.dashboard=true"
       - "--providers.docker=true"
