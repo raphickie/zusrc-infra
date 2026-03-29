@@ -81,6 +81,7 @@ services:
     environment:
       ConnectionStrings__Default: "Server=database;Port=3306;Database=dolka;User=root;Password=${MYSQL_CONTAINER_ROOT_PASSWORD};"
       Telegram__BotToken: ${DOLKA_BOT_TOKEN}
+      Telegram__BotUsername: dolka_split_bot
       WebApp__Url: https://dolka.zusrc.ru
     labels:
       - "traefik.enable=true"
