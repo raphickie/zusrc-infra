@@ -59,8 +59,6 @@ services:
       BotChatSettings__BotUsername: "tvoy_assistent_bot"
       HTTP_PROXY: "http://wWcGsdpW:NZjjc3e7@154.195.165.235:64332"
       HTTPS_PROXY: "http://wWcGsdpW:NZjjc3e7@154.195.165.235:64332"
-      HTTP_PROXY: "http://wWcGsdpW:NZjjc3e7@154.195.165.235:64332"
-      HTTPS_PROXY: "http://wWcGsdpW:NZjjc3e7@154.195.165.235:64332"
  
     labels:
       - "traefik.enable=true"
