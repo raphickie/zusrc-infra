@@ -89,6 +89,9 @@ services:
       Telegram__BotToken: ${DOLKA_BOT_TOKEN}
       Telegram__BotUsername: dolka_split_bot
       WebApp__Url: https://dolka.zusrc.ru
+      HTTP_PROXY: "http://wWcGsdpW:NZjjc3e7@154.195.165.235:64332"
+      HTTPS_PROXY: "http://wWcGsdpW:NZjjc3e7@154.195.165.235:64332"
+      NO_PROXY: "n8n,localhost"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.dolka.rule=Host(`dolka.zusrc.ru`)"
