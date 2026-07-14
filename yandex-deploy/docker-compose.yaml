@@ -33,8 +33,8 @@ services:
       - n8n_data:/home/node/.n8n
     environment:
       N8N_SECURE_COOKIE: false
-      HTTP_PROXY: "http://wWcGsdpW:NZjjc3e7@154.195.165.235:64332"
-      HTTPS_PROXY: "http://wWcGsdpW:NZjjc3e7@154.195.165.235:64332"
+      HTTP_PROXY: "http://user1:test@5.45.115.77:3128"
+      HTTPS_PROXY: "http://user1:test@5.45.115.77:3128"
       N8N_EDITOR_BASE_URL: "https://n8n.zusrc.ru"
       WEBHOOK_URL: https://n8n.zusrc.ru
       WEBHOOK_TUNNEL_URL: https://n8n.zusrc.ru
@@ -57,8 +57,8 @@ services:
       DbConfiguration__MysqlDatabase__ConnectionString: ${CONNECTION_STRING}
       BotConfiguration__BotToken: ${ASSISTANT_BOT_TOKEN}
       BotChatSettings__BotUsername: "tvoy_assistent_bot"
-      HTTP_PROXY: "http://wWcGsdpW:NZjjc3e7@154.195.165.235:64332"
-      HTTPS_PROXY: "http://wWcGsdpW:NZjjc3e7@154.195.165.235:64332"
+      HTTP_PROXY: "http://user1:test@5.45.115.77:3128"
+      HTTPS_PROXY: "http://user1:test@5.45.115.77:3128"
       NO_PROXY: "n8n,localhost"
  
     labels:
@@ -77,8 +77,8 @@ services:
     environment:
       BotConfiguration__BotToken: ${DE_BOT_TOKEN}
       BotConfiguration__N8nHookAddress: ${DE_BOT_HOOK}
-      HTTP_PROXY: "http://wWcGsdpW:NZjjc3e7@154.195.165.235:64332"
-      HTTPS_PROXY: "http://wWcGsdpW:NZjjc3e7@154.195.165.235:64332"
+      HTTP_PROXY: "http://user1:test@5.45.115.77:3128"
+      HTTPS_PROXY: "http://user1:test@5.45.115.77:3128"
 
   dolka:
     container_name: dolka
@@ -89,8 +89,8 @@ services:
       Telegram__BotToken: ${DOLKA_BOT_TOKEN}
       Telegram__BotUsername: dolka_split_bot
       WebApp__Url: https://dolka.zusrc.ru
-      HTTP_PROXY: "http://wWcGsdpW:NZjjc3e7@154.195.165.235:64332"
-      HTTPS_PROXY: "http://wWcGsdpW:NZjjc3e7@154.195.165.235:64332"
+      HTTP_PROXY: "http://user1:test@5.45.115.77:3128"
+      HTTPS_PROXY: "http://user1:test@5.45.115.77:3128"
       NO_PROXY: "n8n,localhost"
     labels:
       - "traefik.enable=true"
