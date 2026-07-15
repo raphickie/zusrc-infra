@@ -35,7 +35,7 @@ services:
       N8N_SECURE_COOKIE: false
       HTTP_PROXY: "http://user1:test@5.45.115.77:3128"
       HTTPS_PROXY: "http://user1:test@5.45.115.77:3128"
-      NO_PROXY: "api.cloud.yandex.net,yandex.cloud"
+      NO_PROXY: "n8n,localhost,127.0.0.1,api.cloud.yandex.net,.api.cloud.yandex.net,iam.api.cloud.yandex.net,yandex.cloud,.yandex.cloud"
       N8N_EDITOR_BASE_URL: "https://n8n.zusrc.ru"
       WEBHOOK_URL: https://n8n.zusrc.ru
       WEBHOOK_TUNNEL_URL: https://n8n.zusrc.ru
@@ -60,7 +60,7 @@ services:
       BotChatSettings__BotUsername: "tvoy_assistent_bot"
       HTTP_PROXY: "http://user1:test@5.45.115.77:3128"
       HTTPS_PROXY: "http://user1:test@5.45.115.77:3128"
-      NO_PROXY: "n8n,localhost,api.cloud.yandex.net,yandex.cloud"
+      NO_PROXY: "n8n,localhost,127.0.0.1,api.cloud.yandex.net,.api.cloud.yandex.net,iam.api.cloud.yandex.net,yandex.cloud,.yandex.cloud"
  
     labels:
       - "traefik.enable=true"
@@ -80,7 +80,7 @@ services:
       BotConfiguration__N8nHookAddress: ${DE_BOT_HOOK}
       HTTP_PROXY: "http://user1:test@5.45.115.77:3128"
       HTTPS_PROXY: "http://user1:test@5.45.115.77:3128"
-      NO_PROXY: "n8n,localhost,api.cloud.yandex.net,yandex.cloud"
+      NO_PROXY: "n8n,localhost,127.0.0.1,api.cloud.yandex.net,.api.cloud.yandex.net,iam.api.cloud.yandex.net,yandex.cloud,.yandex.cloud"
 
   dolka:
     container_name: dolka
